@@ -1,10 +1,10 @@
 # ROP - Return Oriented Programming 
-- source: https://crypto.stanford.edu/~blynn/rop/
+> source: https://crypto.stanford.edu/~blynn/rop/
 
 ## shell.c
 - Goal:
     - An inline shell with c.
-    '''c
+    ```c
     int main() {
      asm("\
     needle0: jmp there\n\
@@ -19,24 +19,13 @@
     needle1: .octa 0xdeadbeef\n\
     ");
     }
-    '''
-- Problem:
-    - I started this with Mac OS, but didn't work so I switched to Ubuntu. 
+    ```
 - GIF:
+    -  ![1](https://github.com/justinfchin/CSrop/blob/master/gifs/1.gif?raw)
+- Notes:
     -  
-
-1. We how to circumvent executable space protection using ROP. Note that we use 64 bit system calls so that we can refer to memory addresses that are both 32 and 64 bits. 
-
-No matter where our code winds up, the call-pop trick will load teh RDI register with the address of the /bin/sh string
-
-Note that 0x86 is little-endian, 0xdeadbeef will show up as EF BE AD DE followed by 4 zero bytes. 
-
-No matter where our code winds up, the call-pop trick will load the RDI register with the address of the /bin/sh string
-
-needle0 and needle1 labels are used to aid searches later on 
-
-the 2nd and 3rd arguments to execve are supposed to point to NULL terminated arrays of pointers to strings(argv[] and envp[]). However, our system is forgiving, running 'bin/sh' with NULL argv and envp succeeds
-
+- Problems:
+    - I started this with Mac OS, but did not work so I switched to Ubuntu. 
 
 objdump - displays information from object files
 to do this on mac osx, i had to brew install binutils, then instead of objdump, use gobjdump to avoid conflicts with the utilities distributed by apple
