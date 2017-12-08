@@ -21,7 +21,7 @@
     }
     ```
 - GIF:
-    -  ![1](https://github.com/justinfchin/CSrop/blob/master/gifs/1.gif?raw)
+    -  ![1](https://github.com/justinfchin/CSrop/blob/master/gif/1.gif?raw)
 - Notes:
     -  
 - Problems:
