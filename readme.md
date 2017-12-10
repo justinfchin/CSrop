@@ -471,7 +471,7 @@
         vagrant@precise64:~$ 
         ```
         - We got a segmentation fault...something must be wrong. 
-            - Reading the update on top of the page says that newer Linux versions organize stack differently. So, we try the method on that.
+            - Reading the [update on top of the page](https://github.com/finallyjustice/security/blob/master/rop/demo1/README.txt) says that newer Linux versions organize stack differently. So, we try the method on that.
     - Stack Layout for new Linux Versions
         ```
         ### Stack Layout ###
@@ -545,7 +545,7 @@
     - Segmentation Fault, possibly from having a newer Linux Version
         - followed updated code on top of guide
         - added ```setarch `arch` -R ./victim``` to the last bit of the updated code to fix additional segmentation fault problems (cause ASLR was not off and random memory location was occurring)
-    - Make sure the press enter multiple times and do no insert a string once ./victim runs
+    - Make sure the press enter multiple times and do not insert a string once ./victim runs
 ---
 ## 8. Conclusion & Remaining
 - ProPolice
