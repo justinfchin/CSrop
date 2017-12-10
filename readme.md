@@ -276,7 +276,7 @@
         ./victim                    ffffe488
         ps -eo cmd,esp              57e70028
 
-    ```
+        ```
     - Then run the victim program without ASLR. At the same time, run the ps command in another terminal. We get the same as the above except that the ESP of ./victim now exists and the ps location changes. I will crop out the rest.  
         - Terminal 1        
         ```bash
