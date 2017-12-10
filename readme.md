@@ -2,8 +2,17 @@
 - source: https://crypto.stanford.edu/~blynn/rop/
 - version: started with Ubuntu 16.04 LTS then switched to Ubuntu 12.04
     - notice of switched indicated below when done
+## Table of Contents
+    1. [Some Assembly Required & The Shell Game](#1)
+    2. [Learn Bad C in only 1 hour! & The Three Trials of Code Injection          ](#2)
+    3. [The Importance of Being Patched](#3)
+    4. [Executable Space Perversion](#4)
+    5. [Go Go Gadgets](#5)
+    6. [Many Happy Returns](#6)
+    7. [Conclusion & Remaining](#7)
 
-## 1. Some Assembly Required & the Shell Game
+<a name="1"></a>
+## 1. Some Assembly Required & The Shell Game
 - Goal:
     - An inline shell with c.
     ```c
@@ -82,6 +91,7 @@
     - for the ```cat shellcode``` output portion, our original code segment was in a different part of memory compared to what was mentioned in the article. 
         - Based on this, our code lies at offset **0x4da** and finishes right before offset **0x4f7**. Changes were made to the hexdump based on this which gave us the correct output as shown above.
 ---
+<a name="2"></a>
 ## 2. Learn Bad C in only 1 hour! & The Three Trials of Code Injection
 - Goal:
     - Example of vulnerability in a bad c code. 
@@ -165,8 +175,8 @@
         ```
         - found out my problem was that I did not make sure the buffer location was the same when getting little-endian.
 ---
- 
-## 4. The Importance of Being Patched
+<a name="3"></a>
+## 3. The Importance of Being Patched
 - Goal:
     - Look into bypassing ASLR
 - Steps:
@@ -354,8 +364,8 @@
 - Problems:
     - Kept getting segmentation fault error. The guide we are using acknowledges that it works with ubuntu 12.04 and 14.04. So at this point I switched to 12.04 and decided to continue from there. 
 ---
-
-## 5. Executable Space Perversion
+<a name="4"></a>
+## 4. Executable Space Perversion
 - Goal:
     - Understand NX and the power behind ROP
 - Steps:
@@ -386,7 +396,8 @@
 - Problems:
     - None
 ---
-## 6. Go Go Gadgets
+<a name="5"></a>
+## 5. Go Go Gadgets
 - Goal:
     - Call the libc system() function with "/bin/sh" as the argument using a gadget that assigns a chosen value to RDI and then jumps to the system() libc function. 
 - Steps:
@@ -421,7 +432,8 @@
 - Problems:
     - None
 ---
-## 7. Many Happy Returns
+<a name="6"></a>
+## 6. Many Happy Returns
 - Goal:
     - Exploit using RET
 - Steps:
@@ -547,7 +559,8 @@
         - added ```setarch `arch` -R ./victim``` to the last bit of the updated code to fix additional segmentation fault problems (cause ASLR was not off and random memory location was occurring)
     - Make sure the press enter multiple times and do not insert a string once ./victim runs
 ---
-## 8. Conclusion & Remaining
+<a name="7"></a>
+## 7. Conclusion & Remaining
 - ProPolice
     - best defense because it moves arrays to the highest part of the stack, so less chance for overflowing
     - it also places values at the end known as **canaries**.
