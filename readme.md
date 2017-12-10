@@ -3,15 +3,15 @@
 - version: started with Ubuntu 16.04 LTS then switched to Ubuntu 12.04
     - notice of switched indicated below when done
 ## Table of Contents
-1. [Some Assembly Required & The Shell Game](#one)
+1. [Some Assembly Required & The Shell Game](#1)
 2. [Learn Bad C in only 1 hour! & The Three Trials of Code Injection](#2)
 3. [The Importance of Being Patched](#3)
 4. [Executable Space Perversion](#4)
 5. [Go Go Gadgets](#5)
 6. [Many Happy Returns](#6)
 7. [Conclusion & Remaining](#7)
-
-<a name="one"></a>
+---
+<a name="1"></a>
 ## 1. Some Assembly Required & The Shell Game
 - Goal:
     - An inline shell with c.
